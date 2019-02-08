@@ -68,11 +68,9 @@ As you can see, the plugin changes the **namespace** element of the **current co
 
 This means that the next time you use `kubectl`, it will use the new namespace for the same cluster.
 
-Note that this includes a physical 
-
 Note that the `ns` command physically changes one of your *kubeconfig* files (the default *kubeconfig* file is `~/.kube/config`, but you can have multiple *kubeconfig* files by by listing them in the [`KUBECONFIG`](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable) environment variable).
 
-The `ns -l` command displays the namespaces of the **cluster** that is set in your current context.
+The `ns -l` command displays the namespaces of the **cluster** which is referenced by your current context.
 
 ## Dependencies
 
