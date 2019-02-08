@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+usage() {
+  cat <<EOF
+Interactively change the current namespace.
+
+Usage:
+  ns [-l | -u]
+
+Examples:
+  # Interactively change current namespace
+  kubectl ns
+
+  # List all namespaces of current cluster
+  kubectl ns -l
+
+  # Update local cache with namespaces of current cluster
+  kubectl ns -u 
+
+Flags:
+  -l          List namespaces of current cluster
+  -u          Update local cache with namespaces of current cluster
+  -h, --help  Show this help message
+EOF
+}
+
+fzf_missing() {
+  cat <<EOF
+You must install fzf to use this plugin:
+
+    https://github.com/junegunn/fzf
+
+INSTALLATION
+
+Homebrew (macOS) and Linuxbrew (Linux):
+    brew install fzf
+
+From source (macOS, Linux):
+    git clone https://github.com/junegunn/fzf.git ~/.fzf
+    ~/.fzf/install
+
+Other installation options:
+    https://github.com/junegunn/fzf#installation 
+EOF
+}
+
+CACHE="$HOME/.kube/kubectl-ns"
+
+# Save cluster and namespace of current context in CLUSTER and NAMESPACE vars
+get_data() {
+  eval $(kubectl config view --minify | awk '/^ +namespace:/{n=$2} /^ +cluster:/{c=$2} END{if(n=="")n="default"; gsub("/","-",c); printf "CLUSTER=\"%s\" NAMESPACE=\"%s\"", c, n}')
+}
+
+# Retrieve namespaces of cluster of current context and save in local cache
+update_cache() {
+  echo -n "Updating local cache... "
+  mkdir -p "$CACHE" 
+  echo "This directory is a cache and can be safely deleted." >"$CACHE/README.txt"
+  get_data
+  kubectl get -o custom-columns=':.metadata.name' --no-headers ns >"$CACHE/$CLUSTER"
+  echo done
+}
+
+# Test if cache exists for current cluster, and if not, create it
+test_cache() {
+  [[ -f "$CACHE/$CLUSTER" ]] || update_cache
+}
+
+# Print namespaces of current cluster from local cache
+print_namespaces() {
+  sed "s/^/  /;\|$NAMESPACE|s/ /*/" "$CACHE/$CLUSTER"
+}
+
+# List namespaces from local cache
+list_namespaces() {
+  get_data
+  test_cache
+  print_namespaces
+}
+
+# Set namespace of current context to a new namespace (from local cache)
+set_namespace() {
+  which -s fzf || { fzf_missing; exit 1; }
+  get_data
+  test_cache
+  local ns=$(print_namespaces | fzf -e | sed 's/^..//')
+  if [[ -z "$ns" ]]; then
+    echo "Aborted. Nothing has been changed."
+  else
+    kubectl config set-context --current --namespace "$ns" >/dev/null
+    echo "Switched to namespace \"$ns\"."
+  fi
+}
+
+case "$1" in
+  "") set_namespace;;
+  -l) list_namespaces;;
+  -u) update_cache;;
+  *)  usage;;
+esac
