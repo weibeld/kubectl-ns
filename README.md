@@ -10,6 +10,8 @@ Also see [kubectl-ctx](https://github.com/weibeld/kubectl-ctx) for switching bet
 
 ## Installation
 
+You can install the plugin by following these simple steps:
+
 1. Download the `kubectl-ns` script:
 
     ~~~bash
@@ -22,13 +24,13 @@ Also see [kubectl-ctx](https://github.com/weibeld/kubectl-ctx) for switching bet
     chmod +x kubectl-ns
     ~~~
     
-3. Move it to *any* directory in your `PATH` (you might crate a `~/.kubectl-plugins` folder for all your kubectl plugins and add it to your `PATH`):
+3. Move it to *any* directory in your `PATH` (you might want to create a `~/.kubectl-plugins` folder for all your kubectl plugins):
 
     ~~~bash
     mv kubectl-ns ~/.kubectl-plugins
     ~~~~
 
-Now, you can verify that the plugin is correctly installed by running the following command and checking that the `kubectl-ns` script is in the output:
+Now, you can verify that the plugin is correctly installed by running the following command and checking that the `kubectl-ns` script is included in the output:
 
 ~~~bash
 kubectl plugin list
@@ -75,9 +77,13 @@ kubectl ns -u
 
 ### Cache
 
-The cache feature speeds up the `kubectl ns` and `kubectl ns -l` commands. This is because these commands need to retrieve the full list of namespaces, which is usually only stored in the cluster and thus needs to be retrieved from the API server. Without the cache, these commands would take as long as it takes you to execute `kubectl get namespaces`. With the cache, they are blazingly fast, as they get the full list of namespaces from the local cache rather than from the API server.
+The cache feature speeds up the `kubectl ns` and `kubectl ns -l` commands.
 
-The cache is created automatically when running `kubectl ns` or `kubectl ns -l` for the first time with a given cluster (cache location is `~/.kube/kubectl-ns`). You can manually update the cache at any time by running `kubectl ns -u` (there are no automatic updates of the cache, so you should run `kubectl ns -u` whenever you create or delete namespaces).
+This is because these commands need to retrieve the full list of namespaces, which is usually only stored in the cluster and thus needs to be retrieved from the API server. Without the cache, these commands would take as long as it takes to execute `kubectl get namespaces`. With the cache, they are blazingly fast, as they get the full list of namespaces from the local cache rather than from the API server.
+
+The cache is created automatically when running `kubectl ns` or `kubectl ns -l` for the first time with a given cluster (cache location is `~/.kube/kubectl-ns`). You can manually update the cache at any time by running `kubectl ns -u`.
+
+Note that there are no automatic updates of the cache, so you should run `kubectl ns -u` whenever you create or delete namespaces.
 
 ## How It Works
 
