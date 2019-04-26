@@ -68,7 +68,7 @@ test_cache() {
 
 # Print namespaces of current cluster from local cache
 print_namespaces() {
-  sed "s/^/  /;\|$NAMESPACE|s/ /*/" "$CACHE/$CLUSTER"
+  sed "s/^/  /;\|^  $NAMESPACE$|s/ /*/" "$CACHE/$CLUSTER"
 }
 
 # List namespaces from local cache
