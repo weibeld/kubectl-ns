@@ -80,7 +80,7 @@ list_namespaces() {
 
 # Set namespace of current context to a new namespace (from local cache)
 set_namespace() {
-  which -s fzf || { fzf_missing; exit 1; }
+  which fzf >/dev/null || { fzf_missing; exit 1; }
   get_data
   test_cache
   local ns=$(print_namespaces | fzf -e | sed 's/^..//')
